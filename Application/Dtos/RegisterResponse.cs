@@ -10,6 +10,6 @@
         public bool IsActive { get; set; }
 
         public bool HasError { get; set; }
-        public string Error { get; set; }
+        public List<string> Errors { get; set; } = new List<string>();
     }
 }

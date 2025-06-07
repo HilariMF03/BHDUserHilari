@@ -21,17 +21,25 @@ namespace WebApplication1.Controllers
             var response = await _usersService.RegisterAsync(request);
 
             if (response.HasError)
-                return BadRequest(new { message = response.Error });
-
-            return CreatedAtAction(nameof(Register), new
             {
-                id = response.Id,
-                created = response.Created,
-                modified = response.Modified,
-                last_login = response.LastLogin,
-                token = response.Token,
-                isactive = response.IsActive
-            });
+                // Devuelve un array de errores
+                return BadRequest(new { errors = response.Errors });
+            }
+
+            // Devuelve 201 Created con el cuerpo del nuevo usuario, sin Location
+            return Created(
+                uri: string.Empty,
+                value: new
+                {
+                    id = response.Id,
+                    created = response.Created,
+                    modified = response.Modified,
+                    last_login = response.LastLogin,
+                    token = response.Token,
+                    is_active = response.IsActive
+                }
+            );
         }
+
     }
 }

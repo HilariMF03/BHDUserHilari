@@ -27,34 +27,34 @@ namespace Application.Services
         {
             var response = new RegisterResponse();
 
-            // Valida formato de correo electrónico
-            var emailRegex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+            // Prepara lista para acumular errores
+            var errors = new List<string>();
+
+            // 1) Formato de correo
+            var emailRegex = new Regex(@"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$");
             if (!emailRegex.IsMatch(request.Email))
-            {
-                response.HasError = true;
-                response.Error = "Formato de correo inválido";
-                return response;
-            }
+                errors.Add("Formato de correo inválido.");
 
-            // Valida contraseña con expresión regular desde el appsettings.json
-            var passwordRegex = new Regex(_config["PasswordValidation:Regex"]);
+            // 2) Formato de contraseña (toma la regex del appsettings)
+            var passwordRegex = new Regex(_config["PasswordValidation:Regex"]!);
             if (!passwordRegex.IsMatch(request.Password))
-            {
-                response.HasError = true;
-                response.Error = "Formato de contraseña inválido";
-                return response;
-            }
+                errors.Add("Formato de contraseña inválido. Debe tener 8 caracteres, al menos una mayúscula y un número.");
 
-            // Verifica si el email ya existe en la bd
+            // 3) ¿Ya existe el usuario?
             var existingUser = await _repository.GetByEmailAsync(request.Email);
             if (existingUser != null)
+                errors.Add("El correo ya está registrado.");
+
+            // Si hay errores, los devolvemos todos de una
+            if (errors.Any())
             {
                 response.HasError = true;
-                response.Error = "El correo ya registrado";
+                response.Errors = errors;
                 return response;
             }
 
-
+            // ——————————————————————————
+            // Si pasaron todas las validaciones, creamos el usuario:
             var user = new Users
             {
                 Name = request.Name,
@@ -72,21 +72,21 @@ namespace Application.Services
                 }).ToList()
             };
 
-
             user.Token = _jwtGenerator.GenerateToken(user.Id, user.Email);
-
             await _repository.AddAsync(user);
 
-            // respuesta
+            // Rellenamos la respuesta de éxito
             response.Id = user.Id;
             response.Created = user.Created;
             response.Modified = user.Modified;
             response.LastLogin = user.LastLogin;
             response.Token = user.Token;
             response.IsActive = user.IsActive;
+            // HasError y Errors ya vienen por defecto en false/empty
 
             return response;
         }
+
 
 
         private string HashPassword(string password)
