@@ -58,7 +58,7 @@ Edita el archivo `Presentation/WebApplication1/appsettings.json` y reemplaza la 
 cd Presentation/WebApplication1
 dotnet ef migrations add InitialCreate o add-migration {NombreDeTuMigracion}
 dotnet ef database update o update-database
-```+
+```
 
 ### 4. Inicia la API
 
@@ -68,7 +68,14 @@ dotnet run
 
 La API estará disponible en: `https://localhost:{puerto}`
 
+### 5. Ejecutar pruebas
+
+```bash
+Desde-su-terminal: dotnet test
+```
+
 ---
+
 
 ## 📬 Endpoint Principal
 
