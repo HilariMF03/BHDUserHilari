@@ -7,7 +7,7 @@ namespace Domain.Entities
         public string Number { get; set; }
         public string CityCode { get; set; }
         public string ContryCode { get; set; }
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public Users User { get; set; }
     }
 }

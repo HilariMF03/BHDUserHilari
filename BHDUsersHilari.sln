@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Persistence\Persistence.csproj", "{FAD6AF3D-BA97-4E60-B96A-A01B92A39C7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{7E177F79-3C16-47B3-B2EA-F1B2C8A85A74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BHDUsersHilari", "WebApplication1\BHDUsersHilari.csproj", "{7E177F79-3C16-47B3-B2EA-F1B2C8A85A74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
