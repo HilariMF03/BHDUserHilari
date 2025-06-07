@@ -1,7 +1,7 @@
-# BHUsersHilari - Prueba Técnica API REST de Usuarios
+# BHDUsersHilari - Prueba Técnica API REST de Usuarios
 
 ## Descripción
-Implementación de una API RESTful en ASP.NET Core (.NET 6+) para el registro y gestión de usuarios, respetando los requerimientos de la vacante.
+Implementación de una API RESTful en ASP.NET Core (.NET 6+) para el registro y gestión de usuarios, respetando los requerimientos de la Prueba.
 
 ## Estructura del Proyecto
 ```
@@ -33,11 +33,17 @@ Source/
 
 ## Instalación y ejecución
 1. Clona el repositorio:
+-git clone https://github.com/HilariMF03/BHDUserHilari.git
+-cd BHDUserHilari\Source
 2. Configura la conexión en `appsettings.json`.
+-Abra "Presentation\WebApplication1\appsettings.json" y pon tu cadena de conexión bajo "ConnectionStrings".
+-"Server=DESKTOP-IR687PC\\SQL2022;Database=BHDUsers;User ID=*;Password=*;MultipleActiveResultSets=true;TrustServerCertificate=True"
 3. Ejecuta migraciones:
+-Abra su terminal y dirijase al directorio del proyecto: cd BHDUserHilari\Source, luego: cd BHDUserHilari\Source
+-dotnet ef migrations add InitialCreate o Add-migration NombreDeTuMigracion
+-dotnet ef database update o Update-database
 4. Arranca la API:
   
-
 ## Endpoints
 ### Registrar usuario
 - **URL:** POST `/api/users`
@@ -46,7 +52,7 @@ Source/
   {
     "name": "Odris09",
     "email": "odris09@gmail.com",
-    "password": "Secreto123!",
+    "password": "Secreto123",
     "phones": [
       { "number": "1234567", "cityCode": "1", "contryCode": "58" }
     ]
