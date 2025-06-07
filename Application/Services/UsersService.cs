@@ -5,6 +5,7 @@ using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.RegularExpressions;
+using static Application.Services.JWTGenerator;
 
 namespace Application.Services
 {
@@ -12,27 +13,21 @@ namespace Application.Services
     {
         private readonly IUsersRepository _repository;
         private readonly IConfiguration _config;
+        private readonly IJwtGenerator _jwtGenerator;
 
-        public UsersService(IUsersRepository repository, IConfiguration config)
+
+        public UsersService(IUsersRepository repository, IConfiguration config, IJwtGenerator jwtGenerator)
         {
             _repository = repository;
             _config = config;
+            _jwtGenerator = jwtGenerator;
         }
 
         public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
         {
             var response = new RegisterResponse();
 
-            // Validar email duplicado
-            var existingUser = await _repository.GetByEmailAsync(request.Email);
-            if (existingUser != null)
-            {
-                response.HasError = true;
-                response.Error = "El correo ya registrado";
-                return response;
-            }
-
-            // Validar formato de email
+            // Valida formato de correo electrónico
             var emailRegex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
             if (!emailRegex.IsMatch(request.Email))
             {
@@ -41,7 +36,7 @@ namespace Application.Services
                 return response;
             }
 
-            // Validar contraseña con regex configurable
+            // Valida contraseña con expresión regular desde el appsettings.json
             var passwordRegex = new Regex(_config["PasswordValidation:Regex"]);
             if (!passwordRegex.IsMatch(request.Password))
             {
@@ -50,7 +45,16 @@ namespace Application.Services
                 return response;
             }
 
-            // Crear usuario
+            // Verifica si el email ya existe en la bd
+            var existingUser = await _repository.GetByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                response.HasError = true;
+                response.Error = "El correo ya registrado";
+                return response;
+            }
+
+
             var user = new Users
             {
                 Name = request.Name,
@@ -60,7 +64,6 @@ namespace Application.Services
                 Modified = DateTime.UtcNow,
                 LastLogin = DateTime.UtcNow,
                 IsActive = true,
-                Token = GenerateToken(),
                 Phones = request.Phones.Select(p => new Phone
                 {
                     Number = p.Number,
@@ -69,9 +72,12 @@ namespace Application.Services
                 }).ToList()
             };
 
+
+            user.Token = _jwtGenerator.GenerateToken(user.Id, user.Email);
+
             await _repository.AddAsync(user);
 
-            // Construir respuesta
+            // respuesta
             response.Id = user.Id;
             response.Created = user.Created;
             response.Modified = user.Modified;
@@ -82,16 +88,10 @@ namespace Application.Services
             return response;
         }
 
+
         private string HashPassword(string password)
         {
-            // Método simple de hash (reemplazar con algo más seguro en prod)
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(password));
-        }
-
-        private string GenerateToken()
-        {
-            // Puedes reemplazar por generación de JWT
-            return Guid.NewGuid().ToString();
         }
     }
 }

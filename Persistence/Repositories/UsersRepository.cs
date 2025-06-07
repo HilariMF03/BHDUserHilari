@@ -8,6 +8,12 @@ namespace Persistence.Repositories
     public class UsersRepository : IUsersRepository
     {
         private readonly ApplicationDbContext _dbContext;
+
+        public UsersRepository(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+
+        }
         public async Task AddAsync(Users user)
         {
             await _dbContext.Users.AddAsync(user);

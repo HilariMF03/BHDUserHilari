@@ -17,7 +17,7 @@ namespace Persistence.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            // Relación uno a muchos: un usuario tiene muchos teléfonos
+            // Relación uno a muchos: usuario tiene muchos teléfonos
             modelBuilder.Entity<Phone>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Phones)
@@ -28,7 +28,6 @@ namespace Persistence.Context
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Tabla personalizada (opcional)
             modelBuilder.Entity<Users>().ToTable("Users");
             modelBuilder.Entity<Phone>().ToTable("Phones");
         }

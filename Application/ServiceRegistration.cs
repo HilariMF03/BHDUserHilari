@@ -1,7 +1,9 @@
 ﻿using Application.Interfaces.Services;
 using Application.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using static Application.Services.JWTGenerator;
 
@@ -32,10 +34,10 @@ namespace Application
                 };
             });
 
-            // JWT Generator
+            // JWT generator
             services.AddScoped<IJwtGenerator, JwtGenerator>();
 
-            // Application Services
+            // Application services
             services.AddScoped<IUsersService, UsersService>();
         }
     }
