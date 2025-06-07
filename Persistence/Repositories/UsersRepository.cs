@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Context;
 
 namespace Persistence.Repositories
@@ -11,6 +12,13 @@ namespace Persistence.Repositories
         {
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<Users> GetByEmailAsync(string email)
+        {
+            return await _dbContext.Users
+                .Include(u => u.Phones)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }
