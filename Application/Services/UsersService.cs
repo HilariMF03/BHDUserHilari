@@ -30,7 +30,7 @@ namespace Application.Services
             var errors = new List<string>();
 
             // Formato de correo
-            var emailRegex = new Regex(@"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$");
+            var emailRegex = new Regex(_config["EmailValidation:Regex"]!);
             if (!emailRegex.IsMatch(request.Email))
                 errors.Add("Formato de correo inválido.");
 
@@ -80,7 +80,6 @@ namespace Application.Services
             response.LastLogin = user.LastLogin;
             response.Token = user.Token;
             response.IsActive = user.IsActive;
-            // HasError y Errors ya vienen por defecto en false/empty
 
             return response;
         }
