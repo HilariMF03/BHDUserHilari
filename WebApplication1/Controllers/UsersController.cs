@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
                 return BadRequest(new { errors = response.Errors });
             }
 
-            // Devuelve 201 Created con el cuerpo del nuevo usuario, sin Location
+            // 201 Created con el cuerpo del nuevo usuario
             return Created(
                 uri: string.Empty,
                 value: new

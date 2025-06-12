@@ -27,25 +27,24 @@ namespace Application.Services
         {
             var response = new RegisterResponse();
 
-            // Prepara lista para acumular errores
             var errors = new List<string>();
 
-            // 1) Formato de correo
+            // Formato de correo
             var emailRegex = new Regex(@"^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,4}$");
             if (!emailRegex.IsMatch(request.Email))
                 errors.Add("Formato de correo inválido.");
 
-            // 2) Formato de contraseña (toma la regex del appsettings)
+            // Formato de contraseña (toma la regex del appsettings)
             var passwordRegex = new Regex(_config["PasswordValidation:Regex"]!);
             if (!passwordRegex.IsMatch(request.Password))
-                errors.Add("Formato de contraseña inválido. Debe tener 8 caracteres, al menos una mayúscula y un número.");
+                errors.Add("La contraseña debe tener al menos 8 caracteres, incluir al menos un número, una letra mayúscula y un carácter especial.");
 
-            // 3) ¿Ya existe el usuario?
+            // Valida si existe el usuario
             var existingUser = await _repository.GetByEmailAsync(request.Email);
             if (existingUser != null)
                 errors.Add("El correo ya está registrado.");
 
-            // Si hay errores, los devolvemos todos de una
+            // Si hay errores, los devolvemos todos
             if (errors.Any())
             {
                 response.HasError = true;
@@ -53,8 +52,7 @@ namespace Application.Services
                 return response;
             }
 
-            // ——————————————————————————
-            // Si pasaron todas las validaciones, creamos el usuario:
+
             var user = new Users
             {
                 Name = request.Name,
@@ -75,7 +73,7 @@ namespace Application.Services
             user.Token = _jwtGenerator.GenerateToken(user.Id, user.Email);
             await _repository.AddAsync(user);
 
-            // Rellenamos la respuesta de éxito
+            // respuesta de éxito
             response.Id = user.Id;
             response.Created = user.Created;
             response.Modified = user.Modified;
