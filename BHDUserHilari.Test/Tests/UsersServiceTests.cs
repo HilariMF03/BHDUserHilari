@@ -1,12 +1,11 @@
-﻿using Castle.Core.Configuration;
+﻿using Application.Dtos;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Services;
+using Domain.Entities;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using static Application.Services.JWTGenerator;
-using Application.Dtos;
-using Application.Interfaces.Repositories;
-using Application.Services;
-using Application.Interfaces.Services;
-using Microsoft.Extensions.Configuration;
-using Domain.Entities;
 
 namespace BHDUserHilari.Test.Tests
 {
@@ -14,7 +13,7 @@ namespace BHDUserHilari.Test.Tests
     {
         private readonly Mock<IUsersRepository> _usersRepositoryMock;
         private readonly Mock<IJwtGenerator> _jwtGeneratorMock;
-        private readonly Microsoft.Extensions.Configuration.IConfiguration _config;
+        private readonly IConfiguration _config;
         private readonly IUsersService _usersService;
 
         public UsersServiceTests()
@@ -23,9 +22,10 @@ namespace BHDUserHilari.Test.Tests
             _jwtGeneratorMock = new Mock<IJwtGenerator>();
 
             var inMemorySettings = new Dictionary<string, string>
-        {
-            { "PasswordValidation:Regex", "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$" }
-        };
+            {
+                { "PasswordValidation:Regex", "^(?=.{8,}$)(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z\\d]).*$" },
+                { "EmailValidation:Regex", "^[\\w\\-.]+@([\\w\\-]+\\.)+[\\w\\-]{2,4}$" }
+            };
 
             _config = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
@@ -35,7 +35,6 @@ namespace BHDUserHilari.Test.Tests
                 _usersRepositoryMock.Object,
                 _config,
                 _jwtGeneratorMock.Object
-                
             );
         }
 
@@ -46,7 +45,7 @@ namespace BHDUserHilari.Test.Tests
             {
                 Name = "Test",
                 Email = "invalidemail",
-                Password = "Abcdef12",   // cumple regex salvo el email
+                Password = "Abcdef12#",   // cumple con la nueva regex
                 Phones = new List<PhoneRequest>()
             };
 
@@ -72,7 +71,7 @@ namespace BHDUserHilari.Test.Tests
 
             Assert.True(result.HasError);
             Assert.Single(result.Errors);
-            Assert.Equal("Formato de contraseña inválido. Debe tener 8 caracteres, al menos una mayúscula y un número.", result.Errors[0]);
+            Assert.Equal("La contraseña debe tener al menos 8 caracteres, incluir al menos un número, una letra mayúscula y un carácter especial.", result.Errors[0]);
         }
 
         [Fact]
@@ -86,7 +85,7 @@ namespace BHDUserHilari.Test.Tests
             {
                 Name = "Test",
                 Email = "test@email.com",
-                Password = "Abcdef12",
+                Password = "Abcdef12#",  // válido
                 Phones = new List<PhoneRequest>()
             };
 
@@ -111,18 +110,17 @@ namespace BHDUserHilari.Test.Tests
             {
                 Name = "Test",
                 Email = "test@email.com",
-                Password = "Abcdef12",
+                Password = "Abcdef12#",  // cumple con todos los requisitos
                 Phones = new List<PhoneRequest>
-            {
-                new PhoneRequest { Number = "123", CityCode = "1", ContryCode = "57" }
-            }
+                {
+                    new PhoneRequest { Number = "123", CityCode = "1", ContryCode = "57" }
+                }
             };
 
             var result = await _usersService.RegisterAsync(request);
 
             Assert.False(result.HasError);
             Assert.Empty(result.Errors);
-
             Assert.Equal("mocked-token", result.Token);
             Assert.True(result.IsActive);
             Assert.NotEqual(Guid.Empty, result.Id);
